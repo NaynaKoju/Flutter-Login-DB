@@ -1,15 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_auth_demo/firebase_options.dart';
-import 'package:firebase_auth_demo/screens/home_screen.dart';
-import 'package:firebase_auth_demo/screens/login_email_password_screen.dart';
-import 'package:firebase_auth_demo/screens/login_screen.dart';
-import 'package:firebase_auth_demo/screens/phone_screen.dart';
-import 'package:firebase_auth_demo/screens/signup_email_password_screen.dart';
-import 'package:firebase_auth_demo/services/firebase_auth_methods.dart';
+import 'package:acs_auth/firebase_options.dart';
+import 'package:acs_auth/screens/home_screen.dart';
+import 'package:acs_auth/screens/login_email_password_screen.dart';
+import 'package:acs_auth/screens/re_captcha.dart';
+import 'package:acs_auth/screens/signup_email_password_screen.dart';
+import 'package:acs_auth/services/firebase_auth_methods.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -17,14 +15,6 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  if (kIsWeb) {
-    FacebookAuth.i.webInitialize(
-      appId: "1129634001214960", // Replace with your app id
-      cookie: true,
-      xfbml: true,
-      version: "v12.0",
-    );
-  }
   runApp(const MyApp());
 }
 
@@ -36,7 +26,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<FirebaseAuthMethods>(
-          create: (_) => FirebaseAuthMethods(FirebaseAuth.instance),
+          create: (_) => FirebaseAuthMethods(
+            FirebaseAuth.instance,
+          ),
         ),
         StreamProvider(
           create: (context) => context.read<FirebaseAuthMethods>().authState,
@@ -46,14 +38,15 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Firebase Auth Demo',
         theme: ThemeData(
+          useMaterial3: true,
           primarySwatch: Colors.blue,
         ),
         home: const AuthWrapper(),
         routes: {
-          EmailPasswordSignup.routeName: (context) =>
-              const EmailPasswordSignup(),
-          EmailPasswordLogin.routeName: (context) => const EmailPasswordLogin(),
-          PhoneScreen.routeName: (context) => const PhoneScreen(),
+          EmailPasswordSignup.routeName: (_) => const EmailPasswordSignup(),
+          EmailPasswordLogin.routeName: (_) => const EmailPasswordLogin(),
+          HomeScreen.routeName: (_) => const HomeScreen(),
+          ReCaptcha.routeName: (_) => const ReCaptcha(),
         },
       ),
     );
@@ -70,6 +63,6 @@ class AuthWrapper extends StatelessWidget {
     if (firebaseUser != null) {
       return const HomeScreen();
     }
-    return const LoginScreen();
+    return const EmailPasswordLogin();
   }
 }

@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 
+typedef ValidatorFn = String? Function(String?)?;
+
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
+  final ValidatorFn validator;
 
   const CustomTextField({
     Key? key,
     required this.controller,
     required this.hintText,
+    this.validator,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
+      validator: validator,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),

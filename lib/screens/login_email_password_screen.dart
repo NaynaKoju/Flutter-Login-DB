@@ -1,7 +1,10 @@
-import 'package:firebase_auth_demo/services/firebase_auth_methods.dart';
-import 'package:firebase_auth_demo/widgets/custom_textfield.dart';
+import 'package:acs_auth/screens/signup_email_password_screen.dart';
+import 'package:acs_auth/services/firebase_auth_methods.dart';
+import 'package:acs_auth/widgets/custom_button.dart';
+import 'package:acs_auth/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:email_validator/email_validator.dart';
 
 class EmailPasswordLogin extends StatefulWidget {
   static String routeName = '/login-email-password';
@@ -12,6 +15,7 @@ class EmailPasswordLogin extends StatefulWidget {
 }
 
 class _EmailPasswordLoginState extends State<EmailPasswordLogin> {
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -34,40 +38,73 @@ class _EmailPasswordLoginState extends State<EmailPasswordLogin> {
             style: TextStyle(fontSize: 30),
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.08),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            child: CustomTextField(
-              controller: emailController,
-              hintText: 'Enter your email',
-            ),
-          ),
-          const SizedBox(height: 20),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            child: CustomTextField(
-              controller: passwordController,
-              hintText: 'Enter your password',
+          Form(
+            key: formKey,
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  child: CustomTextField(
+                    controller: emailController,
+                    validator: (value) {
+                      if (value != null) {
+                        final bool isValidEmail =
+                            EmailValidator.validate(value);
+                        if (!isValidEmail) return 'Invalid Email';
+                      }
+                      return null;
+                    },
+                    hintText: 'Enter your email',
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  child: CustomTextField(
+                    controller: passwordController,
+                    hintText: 'Enter your password',
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 40),
-          ElevatedButton(
-            onPressed: loginUser,
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.blue),
-              textStyle: MaterialStateProperty.all(
-                const TextStyle(color: Colors.white),
+          Column(
+            children: [
+              CustomButton(
+                onTap: () {
+                  if (formKey.currentState != null &&
+                      formKey.currentState!.validate()) {
+                    loginUser();
+                  }
+                },
+                text: 'Login',
               ),
-              minimumSize: MaterialStateProperty.all(
-                Size(MediaQuery.of(context).size.width / 2.5, 50),
+              const SizedBox(height: 16),
+              CustomButton(
+                onTap: () {
+                  Navigator.pushNamed(context, EmailPasswordSignup.routeName);
+                },
+                text: 'Email/Password Sign Up',
               ),
-            ),
-            child: const Text(
-              "Login",
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
+              const SizedBox(height: 16),
+              CustomButton(
+                onTap: () {
+                  context.read<FirebaseAuthMethods>().signInWithGoogle(context);
+                },
+                text: 'Google Sign In',
+              ),
+            ],
           ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    emailController.dispose();
+    passwordController.dispose();
   }
 }

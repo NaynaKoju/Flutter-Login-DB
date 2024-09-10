@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>reCAPTCHA</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+      .g-recaptcha {
+        transform: scale(4);
+        transform-origin: 110px 0;
+      }
+    </style>
+  </head>
+  <body
+    style="
+      height: 100vh;
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    "
+  >
+    <form action="?" method="POST">
+        <h1 style="font-size: 100px;">Verify you are a human</h1>
+      <div
+        class="g-recaptcha"
+        style="margin: 0 auto; display: table"
+        data-sitekey="your_key_here"
+        data-callback="captchaCallback"
+      ></div>
+    </form>
+    <script>
+      function captchaCallback(response) {
+        if (typeof Captcha !== "undefined") {
+          Captcha.postMessage(response);
+        }
+      }
+    </script>
+  </body>
+</html>
+<html>
+  <body></body>
+</html>
